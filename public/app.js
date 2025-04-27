@@ -6,35 +6,52 @@ document.addEventListener("click", (event) => {
       event.target.closest("li").remove();
     });
   } else if (event.target.dataset.type === "edit") {
+    const $task = event.target.closest("li");
     const id = event.target.dataset.id;
-    const newTitle = prompt(
-      "Enter new text",
-      event.target.closest("li").childNodes[0].textContent.trim()
-    );
-    if (newTitle) {
-      edit(id, newTitle).then(() => {
-        event.target.closest("li").childNodes[0].textContent = newTitle;
-      });
-    } else {
-      return;
-    }
+    const title = event.target.dataset.title;
+    const initialHtml = $task.innerHTML;
+
+    $task.innerHTML = `
+      <input type="text" value="${title}">
+      <div>
+        <button class="btn btn-success" data-type="save">Save</button>
+        <button class="btn btn-danger" data-type="cancel">Cancel</button>
+      </div>
+    `;
+
+    const taskListener = ({ target }) => {
+      if (target.dataset.type === "cancel") {
+        $task.innerHTML = initialHtml;
+        $task.removeEventListener("click", taskListener);
+      }
+      if (target.dataset.type === "save") {
+        const title = $task.querySelector("input").value;
+        update({ title, id }).then(() => {
+          $task.innerHTML = initialHtml;
+          $task.querySelector("span").innerText = title;
+          $task.querySelector("[data-type=edit]").dataset.title = title;
+          $task.removeEventListener("click", taskListener);
+        });
+      }
+    };
+
+    $task.addEventListener("click", taskListener);
   }
 });
+
+async function update(newNote) {
+  await fetch(`/${newNote.id}`, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newNote),
+  });
+}
 
 async function remove(id) {
   await fetch(`/${id}`, {
     method: "DELETE",
-  });
-}
-
-async function edit(id, newTitle) {
-  await fetch(`/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json;charset=utf-8",
-    },
-    body: JSON.stringify({
-      title: newTitle,
-    }),
   });
 }

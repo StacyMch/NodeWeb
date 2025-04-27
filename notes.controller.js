@@ -14,13 +14,17 @@ async function addNote(title) {
 
   notes.push(note);
 
-  await fs.writeFile(notesPath, JSON.stringify(notes));
+  await saveNotes(notes);
   console.log(chalk.bgGreen("Note was added"));
 }
 
 async function getNotes() {
   const notes = await fs.readFile(notesPath, { encoding: "utf-8" });
   return Array.isArray(JSON.parse(notes)) ? JSON.parse(notes) : [];
+}
+
+async function saveNotes(notes) {
+  await fs.writeFile(notesPath, JSON.stringify(notes));
 }
 
 async function printNotes() {
@@ -43,23 +47,22 @@ async function removeNote(id) {
     return;
   }
 
-  await fs.writeFile(notesPath, JSON.stringify(notes));
+  await saveNotes(notes);
   console.log(chalk.bgYellow("A note was deleted"));
 }
 
-async function editNote(id, newTitle) {
+async function updateNote(noteData) {
   const notes = await getNotes();
-  const indexToEdit = notes.findIndex((note) => note.id == id);
+  const indexToEdit = notes.findIndex((note) => note.id == noteData.id);
 
   if (indexToEdit !== -1) {
-    notes[indexToEdit].title = newTitle;
+    notes[indexToEdit] = { ...notes[indexToEdit], ...noteData };
+    await saveNotes(notes);
+    console.log(chalk.bgYellow("A note was edited"));
   } else {
     console.log(chalk.bgRed("Operaion failed"));
     return;
   }
-
-  await fs.writeFile(notesPath, JSON.stringify(notes));
-  console.log(chalk.bgYellow("A note was edited"));
 }
 
 module.exports = {
@@ -67,5 +70,5 @@ module.exports = {
   getNotes,
   printNotes,
   removeNote,
-  editNote,
+  updateNote,
 };
