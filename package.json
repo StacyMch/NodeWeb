@@ -1,0 +1,27 @@
+{
+  "name": "node-app",
+  "version": "1.0.1",
+  "description": "This is a simple NodeJS Application",
+  "keywords": [
+    "node",
+    "javascript"
+  ],
+  "license": "ISC",
+  "author": "StacyMch <pine.sunnymeadow@gmail.com>",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "serve": "nodemon index.js"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/yargs": "^17.0.4",
+    "nodemon": "^3.1.10"
+  }
+}
